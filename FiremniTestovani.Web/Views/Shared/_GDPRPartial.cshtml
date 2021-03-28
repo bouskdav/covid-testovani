@@ -1,0 +1,53 @@
+﻿@inject Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine Engine
+@{
+    // get source from URL
+    FiremniTestovani.Models.ApplicationSource source = (FiremniTestovani.Models.ApplicationSource)Context.Items["source"];
+}
+
+@if (Engine.FindView(ViewContext, "_GDPRPartial_" + source.ClientConfigDir, isMainPage: false).Success)
+{
+    <partial name="_GDPRPartial_@source.ClientConfigDir" />
+}
+else
+{
+    <p>Odesláním formuláře souhlasím se zpracováním osobních údajů, a to za níže uvedených podmínek:</p>
+    <ol>
+        <li>
+            <h6>Osobní údaje, které budou zpracovány:</h6>
+            <ul>
+                <li>Jméno a příjmení</li>
+                <li>Datum narození</li>
+                <li>Rodné číslo</li>
+                <li>Číslo pojišťovny</li>
+                <li>Poštovní adresa</li>
+                <li>Telefonický kontakt</li>
+            </ul>
+        </li>
+        <li>
+            <h6>Účelem zpracování osobních údajů je:</h6>
+            <p>Zápis údajů do systému ÚZIS (Ústav zdravotnických informací a statistiky ČR) = správce údajů</p>
+        </li>
+        <li>
+            <h6>Doba zpracování osobních údajů je:</h6>
+            <p>Jeden rok od udělení souhlasu</p>
+        </li>
+        <li>
+            <h6>Osobní údaje mohou být poskytnuty následujícím třetím osobám:</h6>
+            <p>
+                Laguna Solutions, s. r. o. se sídlem Sadová 1116, Dobřichovice, PSČ 252 29, IČO: 079 64 994<br />
+                Testovaná osoba prohlašuje, že byla Správcem řádně poučen o zpracování osobních údajů, že výše uvedené osobní údaje jsou přesné a pravdivé a jsou Správci poskytovány dobrovolně.
+            </p>
+        </li>
+    </ol>
+
+    <h5>Poučení testovaných osob</h5>
+    <p>Správce tímto v souladu s ustanovením čl. 13 Nařízení Evropského parlamentu a Rady (EU) č. 2016/679 ze dne 27. dubna 2016, obecného nařízení o ochraně osobních údajů (dále jen „Nařízení“), informuje, že:</p>
+    <ul>
+        <li>Osobní údaje testovaných osob budou zpracovány na základě jejich svobodného souhlasu, a to za výše uvedených podmínek</li>
+        <li>Důvodem poskytnutí osobních údajů testovaných osob je zájem testovaných osob o provedení testu na vir COVID-19, který je poskytován veřejnosti zdarma</li>
+        <li>Správce nejmenoval pověřence pro ochranu osobních údajů, nepověřil zpracování osobních údajů žádného zpracovatele ani neurčil zástupce pro plnění povinností ve smyslu Nařízení</li>
+        <li>Správce nemá v úmyslu předat osobní údaje testovaných osob do třetí země, mezinárodní organizaci nebo jiným, než výše uvedeným třetím osobám</li>
+        <li>Testovaná osoba má právo kdykoliv odvolat svůj souhlas se zpracováním osobních údajů, právo požadovat od Správce přístup ke svým osobním údajům, jejich opravu nebo výmaz, popřípadě omezení zpracování, a vznést námitku proti zpracování, má právo na přenositelnost těchto údajů k jinému správci, jakož i právo podat stížnost u Úřadu pro ochranu osobních údajů, má-li za to, že Správce při zpracování osobních údajů postupuje v rozporu s nařízením.</li>
+    </ul>
+    <p><strong>Testovaný potvrzuje, že v posledních 90 dnech nepodstoupil PCR testování a v posledních 3 dnech ani antigenní testování.</strong></p>
+}

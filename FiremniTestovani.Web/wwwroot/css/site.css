@@ -1,0 +1,109 @@
+﻿.main-footer {
+    font-size: 80%;
+}
+
+.fr-main-button {
+    color: black;
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    border-radius: 4px;
+    text-align: center;
+    transition: all linear 0.3s;
+}
+
+    .fr-main-button .button-title {
+        font-size: large;
+    }
+
+    .fr-main-button .button-body {
+        font-size: small;
+    }
+
+@media (max-width: 991px) {
+    .fr-main-buttons-container > div > div {
+        margin-bottom: 1em;
+    }
+}
+
+.bootstrap-datetimepicker-widget table td.marked,
+.bootstrap-datetimepicker-widget table td.marked-free {
+    position: relative;
+}
+
+    .bootstrap-datetimepicker-widget table td.marked:before {
+        content: "";
+        display: inline-block;
+        border: solid transparent;
+        border-width: 0 0 7px 7px;
+        border-bottom-color: #ff0000;
+        border-top-color: rgba(0,0,0,.2);
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+    }
+
+    .bootstrap-datetimepicker-widget table td.marked-free:before {
+        content: "";
+        display: inline-block;
+        border: solid transparent;
+        border-width: 0 0 7px 7px;
+        border-bottom-color: #00cb0a;
+        border-top-color: rgba(0,0,0,.2);
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+    }
+
+@media (min-width: 991px) {
+    .fr-main-buttons-container {
+        padding-top: 15vh;
+    }
+
+    .fr-summary-container {
+        padding-top: 1vh;
+    }
+}
+
+.hover-elevation-5:not(.disabled):hover {
+    box-shadow: 0 19px 38px rgba(0,0,0,.3),0 15px 12px rgba(0,0,0,.22) !important;
+}
+
+.fr-main-button.disabled {
+    pointer-events: none;
+    cursor: no-drop;
+}
+
+.fr-divider {
+    top: 0px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.fr-divider span {
+    background-color: white;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.legend-item {
+    line-height: 20px;
+    margin-bottom: 5px;
+}
+
+.legend {
+    height: 20px;
+    width: 20px;
+    float: left;
+    margin-right: 20px;
+}
+
+.legend-today {
+    background-color: #007bff;
+}
+.legend-free {
+    background-color: #00cb0a;
+}
+.legend-full {
+    background-color: #ff0000;
+}

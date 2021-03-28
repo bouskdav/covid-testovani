@@ -1,0 +1,232 @@
+﻿@model FiremniTestovani.Web.Models.DateStats.DateStatsViewModel
+@{
+    ViewData["Title"] = "Hlavní stránka";
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"> Testovací místo</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @*<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Admin">Administrace</a></li>*@
+                        <li class="breadcrumb-item active">Testovací místo</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Main content -->
+    <div class="content">
+        <div class="container">
+            <!-- Info boxes -->
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box elevation-2">
+                        <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Celkem slotů</span>
+                            <span class="info-box-number">
+                                @Model.TotalSlotsCount
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box mb-3 elevation-2">
+                        <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Kapacita celkem</span>
+                            <span class="info-box-number">
+                                @Model.TotalSlotCapacity
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <!-- fix for small devices only -->
+                <div class="clearfix hidden-md-up"></div>
+
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box mb-3 elevation-2">
+                        <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Celkem rezervací</span>
+                            <span class="info-box-number">
+                                @Model.TotalUncanceledBookingCount
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box mb-3 elevation-2">
+                        <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Obsazenost (%)</span>
+                            <span class="info-box-number">
+                                @Model.TotalOccupancyInPercent.ToString("P1")
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-primary card-outline elevation-2">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="far fa-chart-bar"></i>
+                                Přehled slotů
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="line-chart" style="height: 300px;"></div>
+                        </div>
+                        <!-- /.card-body-->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <!-- Moment.js -->
+    <script src="~/lib/moment/moment-with-locales.min.js"></script>
+    <!-- FLOT CHARTS -->
+    <script src="~/lib/flot/jquery.flot.js"></script>
+    <!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+    <script src="~/lib/flot/plugins/jquery.flot.resize.js"></script>
+    <script src="~/lib/flot/plugins/jquery.flot.navigate.js"></script>
+
+    <script>
+        moment.locale('cs');
+    </script>
+
+    <script>
+        /*
+     * LINE CHART
+     * ----------
+     */
+        //LINE randomly generated data
+        var capacityRaw = @Html.Raw(Model.SlotOverviewCapacityString);
+        var capacity = [];
+
+        for (var i = 0; i < capacityRaw.length; i++) {
+            var item = [capacityRaw[i].X, capacityRaw[i].Y];
+            capacity.push(item);
+        }
+
+        var occupancyRaw = @Html.Raw(Model.SlotOverviewOccupiedString);
+        var occupancy = [];
+
+        for (var i = 0; i < occupancyRaw.length; i++) {
+            var item = [occupancyRaw[i].X, occupancyRaw[i].Y];
+            occupancy.push(item);
+        }
+
+        //var sin = [],
+        //    cos = []
+        //for (var i = 0; i < 14; i += 0.5) {
+        //    sin.push([i, Math.sin(i)])
+        //    cos.push([i, Math.cos(i)])
+        //}
+        //var line_data1 = {
+        //    data: sin,
+        //    color: '#3c8dbc'
+        //}
+        //var line_data2 = {
+        //    data: cos,
+        //    color: '#00c0ef'
+        //}
+        $.plot('#line-chart', [capacity, occupancy], {
+            grid: {
+                hoverable: true,
+                borderColor: '#f3f3f3',
+                borderWidth: 1,
+                tickColor: '#f3f3f3'
+            },
+            series: {
+                shadowSize: 0,
+                bars: {
+                    show: true
+                },
+                //points: {
+                //    show: true
+                //}
+            },
+            lines: {
+                fill: false,
+                color: ['#3c8dbc', '#f56954']
+            },
+            xaxis: {
+                mode: 'time',
+                minTickSize: [1, 'hour'],
+                autoScale: 'none',
+                min: (new moment('@Model.FirstSlotTime.AddHours(0.5).ToString("o")')).valueOf(),
+                max: (new moment('@Model.LastSlotTime.AddHours(1.5).ToString("o")')).valueOf(),
+                timeBase: "milliseconds",
+                panRange: [(new moment('@Model.FirstSlotTime.ToString("o")')).valueOf(), (new moment('@Model.LastSlotTime.ToString("o")')).valueOf()]
+            },
+            pan: {
+                interactive: true
+            }
+        })
+
+        //Initialize tooltip on hover
+        $('<div class="tooltip-inner" id="line-chart-tooltip"></div>').css({
+            position: 'absolute',
+            display: 'none',
+            opacity: 0.8
+        }).appendTo('body');
+
+        $('#line-chart').bind('plothover', function (event, pos, item) {
+            if (item) {
+                var index = item.dataIndex;
+                var time = new moment(capacityRaw[index].Date);
+
+                $('#line-chart-tooltip').html(time.format('HH:mm') + '<br />Kapacita: ' + capacityRaw[index].Value + '<br />Obsazeno: ' + occupancyRaw[index].Value)
+                    .css({
+                        top: item.pageY + 5,
+                        left: item.pageX + 5
+                    })
+                    .fadeIn(200);
+
+            } else {
+                $('#line-chart-tooltip').hide()
+            }
+        });
+            /* END LINE CHART */
+    </script>
+}

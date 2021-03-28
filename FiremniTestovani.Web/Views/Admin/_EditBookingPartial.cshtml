@@ -1,0 +1,172 @@
+﻿@model FiremniTestovani.Web.Models.Home.BookingViewModel
+@{
+    ViewData["Title"] = Localizer["Title"];
+
+    Layout = null;
+
+    string calendarCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    List<FiremniTestovani.Models.ApplicationBooking> lastBookings = (List<FiremniTestovani.Models.ApplicationBooking>)ViewData["LastBookings"];
+}
+
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Upravit rezervaci</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            @using (Html.BeginForm(FormMethod.Post, new { id = "fr-booking-form" }))
+            {
+                @Html.HiddenFor(model => model.BookingID)
+                @Html.HiddenFor(model => model.TimeSlotID)
+
+                @Html.HiddenFor(model => model.AcceptTerms)
+
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center mt-4 mb-4">
+                        <h2 class="fr-booking-date">8. březen 2021</h2>
+                        <p class="fr-booking-time">14:45 - 14:50</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FirstName)
+                            @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LastName)
+                            @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PersonalNumber)
+                            @Html.TextBoxFor(model => model.PersonalNumber, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.PersonalNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Email)
+                            @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Phone)
+                            @Html.TextBoxFor(model => model.Phone, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- datum narození -->
+                    <div class="col-lg-3 col-md-6">
+                        @Html.LabelFor(model => model.DateOfBirth)
+                        <div class="input-group date fr-datepicker" id="fr-dob" data-target-input="nearest">
+                            <div class="input-group-prepend" data-target="#fr-dob" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                            </div>
+                            @Html.TextBoxFor(model => model.DateOfBirth, new { @class = "form-control datetimepicker-input", data_toggle = "datetimepicker", data_target = "#fr-dob", autocomplete = "off" })
+                        </div>
+                        @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <!-- státní příslušnost -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Nationality)
+                            @*@Html.DropDownListFor(model => model.Nationality, new SelectList((IEnumerable<FiremniTestovani.Models.ApplicationCountry>)ViewData["ApplicationCountries"], "Value", "Text"), new { @class = "form-control select2" })*@
+                            @Html.DropDownListFor(model => model.Nationality, (SelectList)ViewData["ApplicationCountries"], Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(model => model.Nationality, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <!-- rodné číslo -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PersonalIdentificationNumber)
+                            @Html.TextBoxFor(model => model.PersonalIdentificationNumber, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.PersonalIdentificationNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <!-- pohlaví -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Gender)
+                            @Html.DropDownListFor(model => model.Gender, Html.GetEnumSelectList<FiremniTestovani.Data.Enums.Gender>(), Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <!-- pojišťovna -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Insurance)
+                            @Html.DropDownListFor(model => model.Insurance, Html.GetEnumSelectList<FiremniTestovani.Data.Enums.InsuranceCompany>(), Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                            @Html.ValidationMessageFor(model => model.Insurance, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- město -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.City)
+                            @Html.TextBoxFor(model => model.City, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- psč -->
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ZIPCode)
+                            @Html.TextBoxFor(model => model.ZIPCode, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ZIPCode, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
+            <div>
+                <button type="button" class="btn btn-outline-warning fr-cancel-booking">Zrušit rezervaci</button>
+                <button type="button" class="btn btn-primary fr-submit-booking">Uložit změny</button>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+
+@section scripts{
+    <script>
+        // -------------------------
+        // Basic init
+        // -------------------------
+        $('.select2').select2({
+            // zakomentovat
+            //dropdownParent: $('#modal-booking')
+        });
+    </script>
+
+    <script>
+        // xhr array
+        var xhrArray1 = [];
+        // variable for active dates
+        var activeDates = [];
+        var freeDates = [];
+        var timeSlot;
+    </script>
+}

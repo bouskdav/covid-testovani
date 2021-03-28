@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container">
+            <div class="row mb-2">
+                <div class="col-lg-6">
+                    <h1 class="m-0 text-dark"> @Localizer["PageHeading"]</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Main content -->
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-8 fr-main-buttons-container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a asp-action="PersonalData" asp-controller="Home">
+                                <div class="fr-main-button elevation-3 hover-elevation-5 h-100">
+                                    <div class="button-title">@Localizer["GoToBookingTitle"]</div>
+                                    <div class="button-body">
+                                        @Localizer["GoToBookingDescription"]
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            @*<a href="javascript:;" class="disabled">*@
+                                <div class="fr-main-button elevation-3 hover-elevation-5 disabled h-100">
+                                    <div class="button-title"><span class="badge badge-warning">soon</span><br />@Localizer["GoToTestTitle"]</div>
+                                    <div class="button-body">
+                                        @Localizer["GoToTestDescription"]
+                                    </div>
+                                </div>
+                            @*</a>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+@section scripts{
+    <script src="~/lib/bookingjs/booking.js"></script>
+    <script src="~/lib/bookingjs/locales/cs.js"></script>
+    @*<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/locale/cs.js"></script>*@
+
+    <script>
+        
+    </script>
+}

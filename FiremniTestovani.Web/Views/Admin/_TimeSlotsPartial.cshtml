@@ -1,0 +1,84 @@
+﻿@model FiremniTestovani.Web.Models.Admin.TimeSlotsPartialViewModel
+@{
+    Layout = null;
+}
+
+@if (Model.TimeSlots.Count > 0)
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Sloty pro den @Model.Date.ToString("d. M. yyyy")</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool fr-generate-slots-button bg-green" data-date="@Model.Date.ToString("o")"><i class="fa fa-plus"></i> přidat sloty</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover table-sm" id="fr-slots-table">
+                <thead>
+                    <tr>
+                        <th>Od</th>
+                        <th>Do</th>
+                        <th data-sortable="false">Kapacita</th>
+                        <th>Platných rezervací</th>
+                        <th>Volných míst</th>
+                        <th data-sortable="false"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.TimeSlots)
+                    {
+                        int? freeSpace = null;
+
+                        if (item.Occupancy.HasValue)
+                        {
+                            freeSpace = item.Capacity - item.Occupancy;
+                        }
+
+                        <tr>
+                            <td>@item.From.ToString("HH:mm")</td>
+                            <td>@item.To.ToString("HH:mm")</td>
+                            <td>@item.Capacity</td>
+                            <td>@item.Occupancy</td>
+                            <td>@freeSpace</td>
+                            <td class="text-right"><button type="button" disabled class="btn btn-sm btn-default" data-timeslot-id="@item.ID">Upravit <span class="badge badge-warning">soon</span></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="fr-empty-slots text-center">
+        <div class="mb-2">Na datum @Model.Date.ToString("d. M. yyyy") nejsou vypsány žádné termíny.</div>
+        <button type="button" class="btn btn-outline-success fr-generate-slots-button" data-date="@Model.Date.ToString("o")">Vypsat termíny</button>
+    </div>
+}
+
+<script>
+    $('#fr-slots-table').DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Zkopírovat data'
+            },
+            'csv',
+            'excel',
+            //'pdf',
+            //{
+            //    extend: 'print',
+            //    text: 'Vytisknout'
+            //},
+            //{
+            //    extend: 'colvis',
+            //    text: 'Nastavit sloupce'
+            //}
+        ],
+        language: dataTableCzech
+    //}).buttons().container().appendTo('#fr-slots-table_wrapper .col-md-6:eq(0)');
+    });
+</script>

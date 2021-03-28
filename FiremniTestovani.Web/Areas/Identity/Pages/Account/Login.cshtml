@@ -1,0 +1,115 @@
+﻿@page
+@model LoginModel
+@{ 
+    Layout = null;
+    ViewData["Title"] = "Přihlášení";
+
+    // get source from URL
+    FiremniTestovani.Models.ApplicationSource source = (FiremniTestovani.Models.ApplicationSource)HttpContext.Items["source"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] | FiremníTestování.cz</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/lib/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/lib/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/css/adminlte.min.css">
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a asp-action="Index" asp-controller="Home" asp-area="">
+                <img src="~/clients/@source.GetClientConfigDir()/img/logo.png" class="img-fluid" />
+            </a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Přihlášení do administrace FiremníTestování.cz</p>
+
+                <div class="alert alert-warning">
+                    POZOR! tato stránka slouží pouze pro administrátorský přístup. Pokud se chcete registrovat na test, pokračujte tudy: <a asp-action="Booking" asp-controller="Home" class="btn btn-default btn-sm text-black-50">přihláška na test</a>
+                </div>
+
+                <form id="account" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="input-group mb-3">
+                        <input asp-for="Input.Email" class="form-control" placeholder="@Html.DisplayNameFor(model => model.Input.Email)">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input asp-for="Input.Password" class="form-control" placeholder="@Html.DisplayNameFor(model => model.Input.Password)">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input asp-for="Input.RememberMe">
+                                <label asp-for="Input.RememberMe">
+                                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block">Přihlásit</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+
+                <p class="mb-0">
+                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-center">Nemám účet</a>
+                </p>
+
+                <!--<div class="social-auth-links text-center mb-3">
+        <p>- OR -</p>
+        <a href="#" class="btn btn-block btn-primary">
+            <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
+        </a>
+        <a href="#" class="btn btn-block btn-danger">
+            <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
+        </a>
+    </div>-->
+                <!-- /.social-auth-links -->
+                <!--<p class="mb-1">
+        <a href="forgot-password.html">I forgot my password</a>
+    </p>
+    <p class="mb-0">
+        <a href="register.html" class="text-center">Register a new membership</a>
+    </p>-->
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/js/adminlte.min.js"></script>
+</body>
+</html>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

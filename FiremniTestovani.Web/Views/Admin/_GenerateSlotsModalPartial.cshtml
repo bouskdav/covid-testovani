@@ -1,0 +1,141 @@
+﻿@model FiremniTestovani.Web.Models.Admin.GenerateSlotsViewModel
+@{
+    FiremniTestovani.Web.Models.Admin.NullableBoolSelectList nullableBoolSelectList = new FiremniTestovani.Web.Models.Admin.NullableBoolSelectList();
+
+    // get source from URL
+    FiremniTestovani.Models.ApplicationSource source = (FiremniTestovani.Models.ApplicationSource)Context.Items["source"];
+
+    string defautlTestDuration = TimeSpan.FromMinutes(source.TestDuration).ToString(@"mm\:ss");
+    string defaultAllowStorno = source.AllowSlotCancelation ? "Zapnuto" : "Vypnuto";
+    string defaultConfirmationRequired = source.RequireSlotConfirmation ? "Zapnuto" : "Vypnuto";
+}
+
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Vygenerovat nové sloty</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            @using (Html.BeginForm("GenerateSlots", "Admin", FormMethod.Post, new { Id = "fr-generate-slots-form" }))
+            {
+                @Html.HiddenFor(model => model.Date, new { Id = "GenerateSlots_Date" })
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.From)
+                            @Html.TextBoxFor(model => model.From, new { @class = "form-control", type = "time" })
+                            @Html.ValidationMessageFor(model => model.From, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Duration)
+                            @Html.TextBoxFor(model => model.Duration, new { @class = "form-control", type = "number" })
+                            @Html.ValidationMessageFor(model => model.Duration, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col text-center mb-3">
+                        <hr />
+                        <span class="fr-divider">
+                            <span>vyberte způsob generování řady</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group mb-0">
+                            <div class="icheck-primary d-inline">
+                                @Html.RadioButtonFor(model => model.GenerationMethod, FiremniTestovani.Web.Models.Admin.SlotsGenerationMethod.EndTime, new { Id = "method-endtime", data_unlocks = "To" })
+                                @Html.Label("method-endtime", "Čas do")
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.To)*@
+                            @Html.TextBoxFor(model => model.To, new { @class = "form-control locked-by-method", type = "time", disabled = "disabled" })
+                            @Html.ValidationMessageFor(model => model.To, "", new { @class = "text-danger" })
+                            <small class="text-muted">Sloty budou generovány od začátku do konce po délce slotu (třeba tedy od 10:00 do 15:00 každých 5 minut)</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group mb-0">
+                            <div class="icheck-primary d-inline">
+                                @Html.RadioButtonFor(model => model.GenerationMethod, FiremniTestovani.Web.Models.Admin.SlotsGenerationMethod.Count, new { Id = "method-count", data_unlocks = "Count" })
+                                @Html.Label("method-count", "Počet slotů")
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.Count)*@
+                            @Html.TextBoxFor(model => model.Count, new { @class = "form-control locked-by-method", type = "number", disabled = "disabled" })
+                            @Html.ValidationMessageFor(model => model.Count, "", new { @class = "text-danger" })
+                            <small class="text-muted">Bude vygenerován daný počet slotů od počátečního času</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group mb-0">
+                            <div class="icheck-primary d-inline">
+                                @Html.RadioButtonFor(model => model.GenerationMethod, FiremniTestovani.Web.Models.Admin.SlotsGenerationMethod.EmployeeCount, new { Id = "method-count", data_unlocks = "EmployeeCount" })
+                                @Html.Label("method-count", "Počet zaměstnanců")
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.Count)*@
+                            @Html.TextBoxFor(model => model.EmployeeCount, new { @class = "form-control locked-by-method", type = "number", disabled = "disabled" })
+                            @Html.ValidationMessageFor(model => model.EmployeeCount, "", new { @class = "text-danger" })
+                            <small class="text-muted">Bude vygenerován daný počet slotů (dle kapacity - viz níže) na tento počet zaměstnanců.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col text-center mb-3">
+                        <hr />
+                        <span class="fr-divider">
+                            <span>doplňková nastavení</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Capacity)
+                            @Html.TextBoxFor(model => model.Capacity, new { @class = "form-control", type = "number" })
+                            @Html.ValidationMessageFor(model => model.Capacity, "", new { @class = "text-danger" })
+                            <small class="text-muted">Pokud nezadáte hodnotu, bude kapacita vypočítána jako délka slotu (min) / udávaná délka testu (momentálně nastaveno na @defautlTestDuration)</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.AllowSlotCancelation)
+                            @Html.DropDownListFor(model => model.AllowSlotCancelation, new SelectList(nullableBoolSelectList.Items, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.AllowSlotCancelation, "", new { @class = "text-danger" })
+                            <small class="text-muted">Pokud nezadáte hodnotu, vzata hodnota z defaultního nastavení (@defaultAllowStorno)</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.RequireSlotConfirmation)
+                            @Html.DropDownListFor(model => model.RequireSlotConfirmation, new SelectList(nullableBoolSelectList.Items, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.RequireSlotConfirmation, "", new { @class = "text-danger" })
+                            <small class="text-muted">Pokud nezadáte hodnotu, vzata hodnota z defaultního nastavení (@defaultConfirmationRequired)</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Zrušit</button>
+            <button type="button" class="btn btn-primary fr-submit-slots">Vygenerovat</button>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->

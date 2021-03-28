@@ -1,0 +1,680 @@
+﻿@model FiremniTestovani.Web.Models.Home.BookingViewModel
+@{
+    ViewData["Title"] = Localizer["Title"];
+
+    //string calendarCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "cs" ? "cs" : "en";
+    string calendarCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    List<FiremniTestovani.Models.ApplicationBooking> lastBookings = (List<FiremniTestovani.Models.ApplicationBooking>)ViewData["LastBookings"];
+}
+
+@section header{
+    <!-- Select2 -->
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/datatables-bs4/css/dataTables.bootstrap4.css">
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <h1 class="m-0 text-dark"> @Localizer["PageHeading"]</h1>
+                </div><!-- /.col -->
+                <div class="col-md-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["Breadcrumb_MainPage"]</a></li>
+                        <li class="breadcrumb-item active">@Localizer["Breadcrumb_Current"]</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Main content -->
+    <div class="content">
+        <div class="container">
+            @if (Model.LastTest != null && (Model.LastTest?.TestCompleted ?? false) && (Model.LastTest?.TestResult.HasValue ?? false) && Model.DisplayTestResults)
+            {
+                <div class="row justify-content-center">
+                    <div class="col-md-5">
+                        @if (Model.LastTest.TestResult == false)
+                        {
+                            <div class="card card-success mt-4">
+                                <div class="card-header">
+                                    <h3 class="card-title">@Localizer["TestResult_Negative_Title"]</h3>
+                                </div>
+                                <div class="card-body">
+                                    @Localizer["TestResult_Negative_Description", Model.LastTest.FromActual.Value.ToString("dd.MM.yyyy"), Model.LastTest.FromActual.Value.ToString("HH:mm")]
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card card-danger mt-4">
+                                <div class="card-header">
+                                    <h3 class="card-title">@Localizer["TestResult_Positive_Title"]</h3>
+                                </div>
+                                <div class="card-body">
+                                    @Localizer["TestResult_Positive_Description", Model.LastTest.FromActual.Value.ToString("dd.MM.yyyy"), Model.LastTest.FromActual.Value.ToString("HH:mm")]
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <!-- /.row -->
+            }
+
+            @if (lastBookings != null && lastBookings.Count > 0 && Model.DisplayTestHistory)
+            {
+                <div class="row justify-content-center">
+                    <div class="col-md-9">
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <a href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <h3 class="card-title">Historie vašich testů</h3>
+                                </a>
+                            </div>
+                            <div class="card-body collapse" id="collapseOne">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Čas</th>
+                                            <th>Stav</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in lastBookings)
+                                        {
+                                            <tr>
+                                                <td>@item.FromExpected.Value.ToShortDateString()</td>
+                                                <td>@item.FromExpected.Value.ToShortTimeString()</td>
+                                                <td>
+                                                    @if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.Booked)
+                                                    {
+                                                        <span class="badge badge-info">rezervováno</span>
+                                                    }
+                                                    else if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.Confirmed)
+                                                    {
+                                                        <span class="badge badge-info">potvrzeno</span>
+                                                    }
+                                                    else if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.Arrived)
+                                                    {
+                                                        <span class="badge badge-primary">ve frontě na test</span>
+                                                    }
+                                                    else if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.WaitingForResults)
+                                                    {
+                                                        <span class="badge badge-primary">čekání na výsledek testu</span>
+                                                    }
+                                                    else if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.Completed)
+                                                    {
+                                                        if (Model.DisplayTestResults)
+                                                        {
+                                                            if (item.TestResult == true)
+                                                            {
+                                                                <span class="badge badge-danger">pozitivní</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge badge-success">negativní</span>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-success">dokončeno</span>
+                                                        }
+
+                                                    }
+                                                    else if (item.BookingState == FiremniTestovani.Models.Enums.ApplicationBookingState.Canceled)
+                                                    {
+                                                        <span class="badge badge-secondary">zrušeno</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">neznámý</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            }
+
+            <div class="row justify-content-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3 class="card-title">@Localizer["SelectDate"]</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="fr-datetimepicker"></div>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="legend-item">
+                                <div class="legend legend-today"></div> dnes
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend legend-free"></div> volno
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend legend-full"></div> plno
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="bookingjs"></div>
+                </div>
+                <!-- /.col-md-6 -->
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<div class="modal fade" id="modal-booking" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer["AppointmentBooking"]</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content" id="custom-tabs-two-tabContent">
+                    <div class="tab-pane fade show active" id="custom-tabs-two-home" role="tabpanel" aria-labelledby="custom-tabs-two-home-tab">
+                        @using (Html.BeginForm(FormMethod.Post, new { id = "fr-booking-form" }))
+                        {
+                            @Html.HiddenFor(model => model.TimeSlotID)
+
+                            <div class="row justify-content-center">
+                                <div class="col-md-6 text-center mt-4 mb-4">
+                                    <h2 class="fr-booking-date">8. březen 2021</h2>
+                                    <p class="fr-booking-time">14:45 - 14:50</p>
+                                    <small class="text-muted">@Localizer["For"]</small>
+                                    <p class="text-muted">@Localizer["AppointmentSubject"]</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.FirstName)
+                                        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.LastName)
+                                        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.PersonalNumber)
+                                        @Html.TextBoxFor(model => model.PersonalNumber, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.PersonalNumber, "", new { @class = "text-danger" })
+                                        <small class="text-muted">@Localizer["PersonalNumberDescription"]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Email)
+                                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Phone)
+                                        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                                        <small class="text-muted">@Localizer["PhoneDescription"]</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- datum narození -->
+                                <div class="col-lg-3 col-md-6">
+                                    @Html.LabelFor(model => model.DateOfBirth)
+                                    <div class="input-group date fr-datepicker" id="fr-dob" data-target-input="nearest">
+                                        <div class="input-group-prepend" data-target="#fr-dob" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                                        </div>
+                                        @Html.TextBoxFor(model => model.DateOfBirth, new { @class = "form-control datetimepicker-input", data_toggle = "datetimepicker", data_target = "#fr-dob", autocomplete = "off" })
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <!-- státní příslušnost -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Nationality)
+                                        @*@Html.DropDownListFor(model => model.Nationality, new SelectList((IEnumerable<FiremniTestovani.Models.ApplicationCountry>)ViewData["ApplicationCountries"], "Value", "Text"), new { @class = "form-control select2" })*@
+                                        @Html.DropDownListFor(model => model.Nationality, (SelectList)ViewData["ApplicationCountries"], Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                                        @Html.ValidationMessageFor(model => model.Nationality, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <!-- rodné číslo -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.PersonalIdentificationNumber)
+                                        @Html.TextBoxFor(model => model.PersonalIdentificationNumber, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.PersonalIdentificationNumber, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <!-- pohlaví -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Gender)
+                                        @Html.DropDownListFor(model => model.Gender, Html.GetEnumSelectList<FiremniTestovani.Data.Enums.Gender>(), Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                                        @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <!-- pojišťovna -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Insurance)
+                                        @Html.DropDownListFor(model => model.Insurance, Html.GetEnumSelectList<FiremniTestovani.Data.Enums.InsuranceCompany>(), Localizer["SelectPlaceholder"].Value, new { @class = "form-control select2" })
+                                        @Html.ValidationMessageFor(model => model.Insurance, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- město -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.City)
+                                        @Html.TextBoxFor(model => model.City, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <!-- psč -->
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.ZIPCode)
+                                        @Html.TextBoxFor(model => model.ZIPCode, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.ZIPCode, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-right">
+                                    <!-- souhlasím se zpracováním osobních údajů -->
+                                    <div class="form-group clearfix">
+                                        <div class="icheck-primary d-inline">
+                                            @Html.CheckBoxFor(model => model.AcceptTerms)
+                                            @Html.LabelFor(model => model.AcceptTerms)
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="pill" href="#custom-tabs-two-profile" role="tab" aria-controls="custom-tabs-two-profile">@Localizer["DisplayTermsAndConditions"]</button>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.AcceptTerms, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="tab-pane fade" id="custom-tabs-two-profile" role="tabpanel" aria-labelledby="custom-tabs-two-profile-tab">
+                        <div class="text-center mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home">@Localizer["GoBackButton"]</button>
+                        </div>
+                        <partial name="_GDPRPartial" />
+                        <div class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="pill" href="#custom-tabs-two-home" role="tab" aria-controls="custom-tabs-two-home">@Localizer["GoBackButton"]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default fr-booking-button" data-dismiss="modal">@Localizer["CancelButton"]</button>
+                <button type="submit" class="btn btn-primary fr-booking-button fr-booking-button-submit" form="fr-booking-form">@Localizer["MakeAppointmentButton"]</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+@section scripts{
+    <!-- Moment.js -->
+    <script src="~/lib/moment/moment-with-locales.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    @*<script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>*@
+    <script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.js"></script>
+    <!-- Booking.js -->
+    <script src="~/lib/bookingjs/booking.js"></script>
+    @*<script src="~/lib/bookingjs/locales/locale-all.js"></script>*@
+    <script src="~/lib/bookingjs/locales/@{<text>@calendarCulture</text>}.js"></script>
+    @*<script src="~/lib/fullcalendar/locales/cs.js"></script>*@
+    @*<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/locale/cs.js"></script>*@
+    <!-- Select2 -->
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script>
+        // -------------------------
+        // Defaultní skin Select2
+        // -------------------------
+        $.fn.select2.defaults.set('theme', 'bootstrap4');
+
+        // -------------------------
+        // Basic init
+        // -------------------------
+        $('.select2').select2({
+            // zakomentovat
+            //dropdownParent: $('#modal-booking')
+        });
+
+        
+    </script>
+
+    <script>
+        moment.locale('@calendarCulture');
+    </script>
+
+    <script>
+        // xhr array
+        var xhrArray1 = [];
+        // variable for active dates
+        var activeDates = [];
+        var freeDates = [];
+        var timeSlot;
+
+        var widget1 = new TimekitBooking();
+
+        $('#fr-datetimepicker').datetimepicker({
+            minDate: '@Model.EarliestDateForTest.ToString("yyyy-MM-dd")',
+            format: 'YYYY-MM-DD',
+            locale: '@calendarCulture',
+            inline: true,
+            //sideBySide: true
+        });
+
+        // on datepicker update
+        $('#fr-datetimepicker').on('update.datetimepicker', function (event) {
+            // mark active dates
+            markActiveDates();
+        });
+
+        $('#fr-datetimepicker').on('change.datetimepicker', function (date, oldDate) {
+            // mark active dates
+            markActiveDates();
+
+            if (typeof (date.date) === 'undefined') {
+                date.date = new moment('@Model.EarliestDateForTest.ToString("yyyy-MM-dd")');
+            }
+
+            initBookingForDate(date.date.format());
+        });
+
+        function initBookingForDate(date) {
+            widget1.init({
+                el: '#bookingjs',
+                app_key: 'live_widget_key_yYXHsUurvCUctNYflzGDMqEJo6mol0Yo',
+                //project_id: 'testproject',
+                resources: [
+                    '42b956f0-be11-4af3-9221-19e899fcd1fb'
+                ],
+                availability: {
+                    //future: '2 days',
+                    date: date
+                },
+                fullcalendar: {
+                    locale: '@calendarCulture',
+                    views: {
+                        listing: {
+                            noEventsMessage: '@Localizer["NoSlotsAvailable"]'
+                        }
+                    }
+                },
+                ui: {
+                    display_name: '@Localizer["AppointmentSubject"]',
+                    timezone: 'UTC',
+                    availability_view: 'listing',
+                    show_credits: false,
+                    show_timezone_helper: false,
+                    time_date_format: false,
+                    localization: {
+                        allocated_resource_prefix: 'na',
+                        submit_button: 'Rezervovat termín',
+                        success_message: 'Děkujeme za rezervaci!'
+                    }
+                },
+                disable_confirm_page: true,
+                callbacks: {
+                    createBookingSuccessful: function (response) {
+                        // log response to console
+                        console.log(response);
+
+                        // callback
+                        var callback = function () {
+                            window.location.href = '@Url.Action("Summary", "Home", new { id = "placeholder" })'.replace('placeholder', response.data.id);
+                        };
+
+                        // make sweet alert
+                        frSweetAlert('success', '@Localizer["AlertSuccessTitle"]', '@Localizer["AlertSuccessMessage"]', callback);
+                    },
+                    createBookingFailed: function (response) {
+                        // log response to console
+                        console.log(response);
+
+                        // callback
+                        var callback = function () {
+                            window.location.reload();
+                        };
+
+                        // alert
+                        frSweetAlert('error', '@Localizer["AlertErrorTitle"]', '@Localizer["AlertErrorMessage"]', callback);
+                        // destroy the widget
+                        widget1.destroy();
+                    },
+                    clickTimeslot: function (timeslot) {
+                        console.log(timeslot);
+                        timeSlot = timeslot;
+
+                        // set date and time to modal description
+                        var date = timeslot.start.format('D. MMMM YYYY');
+                        var time = timeslot.start.format('HH:mm') + ' - ' + timeslot.end.format('HH:mm');
+
+                        $('.fr-booking-date').html(date);
+                        $('.fr-booking-time').html(time);
+
+                        // show modal
+                        $('#modal-booking').modal('show');
+                    }
+                },
+                customer_fields: {
+                    name: {
+                        required: true
+                    },
+                    surname: {
+                        required: true
+                    },
+                    email: {
+                        required: true
+                    },
+                    phone: {
+                        required: true
+                    },
+                    dateOfBirth: {
+                        required: true
+                    },
+                    personalIdentificationNumber: {
+                        required: true
+                    },
+                    gender: {
+                        required: true
+                    },
+                    nationality: {
+                        required: true
+                    },
+                    insurance: {
+                        required: true
+                    },
+                    personalNumber: {
+                        required: true
+                    },
+                    city: {
+                        required: true
+                    },
+                    zip: {
+                        required: true
+                    },
+                    terms: {
+                        format: 'checkbox',
+                        required: true
+                    }
+                }
+            });
+        }
+
+        $('#fr-booking-form').on('submit', function (event) {
+            event.preventDefault();
+
+            var $form = $(this);
+
+            if (!$form.valid()) {
+                return;
+            }
+
+            // disable buttons
+            $('.fr-booking-button').prop('disabled', true);
+
+            // set loader
+            $('.fr-booking-button-submit').html('@Localizer["MakeAppointmentButton_Active"]');
+
+            var formData = $form.serializeArray();
+
+            // fill customer data from form
+            var customer = {
+                name: formData.find(o => { return o.name === 'FirstName' }).value,
+                surname: formData.find(o => { return o.name === 'LastName' }).value,
+                email: formData.find(o => { return o.name === 'Email' }).value,
+                phone: formData.find(o => { return o.name === 'Phone' }).value,
+                dateOfBirth: formData.find(o => { return o.name === 'DateOfBirth' }).value,
+                personalIdentificationNumber: formData.find(o => { return o.name === 'PersonalIdentificationNumber' }).value,
+                gender: formData.find(o => { return o.name === 'Gender' }).value,
+                nationality: formData.find(o => { return o.name === 'Nationality' }).value,
+                insurance: formData.find(o => { return o.name === 'Insurance' }).value,
+                personalNumber: formData.find(o => { return o.name === 'PersonalNumber' }).value,
+                city: formData.find(o => { return o.name === 'City' }).value,
+                zip: formData.find(o => { return o.name === 'ZIPCode' }).value,
+                terms: formData.find(o => { return o.name === 'AcceptTerms' }).value
+            };
+
+            // send booking via API
+            widget1.timekitCreateBooking(customer, timeSlot)
+                .then(function () {
+                    console.log('Success, booking created!');
+                    // disable buttons
+                    $('.fr-booking-button').prop('disabled', false);
+                    // set loader
+                    $('.fr-booking-button-submit').html('@Localizer["MakeAppointmentButton"]');
+                });
+        });
+
+        $('.fr-datepicker').datetimepicker({
+            format: 'DD.MM.YYYY',
+            //extraFormats: [moment.ISO_8601],
+            useCurrent: false,
+            locale: '@calendarCulture',
+            sideBySide: true,
+            //maxDate: '2005-01-01'
+        });
+
+        $('button[data-toggle="pill"]').on('shown.bs.tab', function (event) {
+            //console.log(event);
+            $(event.currentTarget).removeClass('active');
+            //event.target // newly activated tab
+            //event.relatedTarget // previous active tab
+        })
+
+        // fetch dates with slots
+        function fetchDates() {
+            var target = $('#fr-datetimepicker');
+
+            var xhrId = $(target).data('xhr-id');
+            var result;
+
+            if (typeof (xhrId) === 'undefined') {
+                xhrId = xhrArray1.length;
+
+                xhrArray1[xhrId] = new XMLHttpRequest();
+                $(target).data('xhr-id', xhrId);
+            }
+
+            xhrArray1[xhrId].abort();
+
+            xhrArray1[xhrId] = $.ajax({
+                cache: false,
+                type: "POST",
+                url: '@Url.Action("TimeSlots", "Admin", null)',
+                //data: postData,
+                success: function (data) {
+                    // set result to activeDates variable
+                    activeDates = data.calc_StringDatesWithSlots;
+                    freeDates = data.calc_StringDatesWithFreeSlots;
+
+                    // and mark active dates
+                    markActiveDates();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if (xhr.statusText === 'abort') {
+                        return;
+                    }
+
+                    alert('chyba: ' + xhr);
+                    console.log(xhr.responseText);
+                }
+            });
+        };
+
+        // funtion for marking active dates based on activeDates variable
+        function markActiveDates() {
+            // remove all marks
+            $('td.day').removeClass('marked');
+            $('td.day').removeClass('marked-free');
+
+            // loop through dates and mark them
+            for (var i = 0; i < activeDates.length; i++) {
+                $('td.day[data-date="' + activeDates[i] + '"]').addClass('marked');
+            }
+
+            // loop through free dates and mark them
+            for (var i = 0; i < freeDates.length; i++) {
+                $('td.day[data-date="' + freeDates[i] + '"]')
+                    .removeClass('marked')
+                    .addClass('marked-free');
+            }
+        };
+
+        // when page loaded...
+        $(document).ready(function () {
+            // fetch dates
+            fetchDates();
+
+            // and trigger datetimepicker change to load table with slots
+            $('#fr-datetimepicker').triggerHandler('change.datetimepicker');
+        });
+    </script>
+}

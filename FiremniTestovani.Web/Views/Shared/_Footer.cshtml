@@ -1,0 +1,37 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{ }
+
+<div class="modal fade" id="modal-gdpr">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Zásady zpracování osobních údajů</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <partial name="_GDPRPartial" />
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Zavřít</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!--Main Footer-->
+<footer class="main-footer d-print-none">
+    <!--To the right-->
+    <div class="float-right d-none d-sm-inline">
+        <a href="javascript:;" data-toggle="modal" data-target="#modal-gdpr">Přečtěte si, jak zpracováváme osobní údaje.</a>
+    </div>
+    <!--Default to the left-->
+    <!--<strong>Copyright &copy; 2021 <a href="https://www.firemnitestovani.cz">FiremníTestování.cz</a>.</strong> Všechna práva vyhrazena. S &hearts; Laguna Solutions, s.r.o.-->
+    <strong>Zůstaňme zdrávi! &hearts;</strong>
+</footer>

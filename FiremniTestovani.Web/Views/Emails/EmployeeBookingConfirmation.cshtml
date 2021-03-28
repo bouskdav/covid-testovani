@@ -1,0 +1,29 @@
+﻿@model FiremniTestovani.Web.Models.Emailing.EmployeeBookingConfirmationEmail
+@{
+    // this email will be sent to employee that has made booking
+    string subject = $"Potvrzení rezervace pro {Model.Booking.Name} na {Model.Booking.FromExpected?.ToString("HH:mm d. M. yyyy")}";
+
+    System.Globalization.CultureInfo czechCulture = new System.Globalization.CultureInfo("cs-CZ");
+}
+To: to@to.com
+From: from@from.com
+@*Reply-To: @Model.Objednavka.ObjednatelEmail*@
+Subject: @Html.Raw(subject)
+
+<p>
+    Dobrý den,
+</p>
+<p>
+    Potvrzujeme Vaší rezervaci na COVID testování.
+</p>
+<p>
+    Jméno: @Html.Raw(Model.Booking.Name)<br />
+    Čas: @Html.Raw(Model.Booking.FromExpected?.ToString("HH:mm"))<br />
+    Datum: @Html.Raw(Model.Booking.FromExpected?.ToString("d. M. yyyy"))
+</p>
+<p>
+    <br />
+    Krásný den,
+    <br />
+    Systém rezervací na COVID testování
+</p>

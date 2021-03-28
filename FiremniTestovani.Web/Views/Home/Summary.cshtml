@@ -1,0 +1,59 @@
+﻿@model FiremniTestovani.Models.ApplicationBooking
+@{
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container">
+            <div class="row mb-2">
+                <div class="col-sm-8">
+                    <h1 class="m-0 text-dark"> @Localizer["PageHeading"]</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-4">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">@Localizer["Breadcrumb_MainPage"]</a></li>
+                        <li class="breadcrumb-item active">@Localizer["Breadcrumb_Current"]</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Main content -->
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-7 col-md-9 fr-summary-container">
+                    <div class="card">
+                        <div class="card-header d-print-none">
+                            <h3 class="card-title d-print-none">@Localizer["AppointmentSummary"]</h3>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="text-center">@Localizer["Date"]</h3>
+                            <p class="text-center" style="font-size: 150%;">@Model.FromExpected?.ToString("d. M. yyyy") <span class="text-success" style="font-size: 150%;">@Model.FromExpected?.ToString("HH:mm")</span></p>
+                            <h3>@Localizer["Name"]</h3>
+                            <p>@Model.Name (@Model.EmployeeID)</p>
+                            <h3>@Localizer["ContactDetails"]</h3>
+                            <p>@Localizer["Phone"]: @Model.Phone<br />@Localizer["Email"]: @Model.Email</p>
+                            <div class="row d-print-none">
+                                <div class="col text-center">
+                                    <button type="button" class="btn btn-primary" onclick="window.print();"><i class="fa fa-print"></i> @Localizer["Print"]</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <img class="img-fluid" src="~/clients/gzmedia/img/mapka.png" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->

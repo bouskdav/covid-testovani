@@ -1,0 +1,53 @@
+﻿@inject Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine Engine
+@{
+    // get source from URL
+    FiremniTestovani.Models.ApplicationSource source = (FiremniTestovani.Models.ApplicationSource)Context.Items["source"];
+}
+
+@if (Engine.FindView(ViewContext, "_GDPRPartial_" + source.ClientConfigDir, isMainPage: false).Success)
+{
+    <partial name="_GDPRPartial_@source.ClientConfigDir" />
+}
+else
+{
+    <p>By submitting the form, I agree to the processing of personal data, under the following conditions:</p>
+    <ol>
+        <li>
+            <h6>Personal data to be processed:</h6>
+            <ul>
+                <li>Name and surname</li>
+                <li>Date of birth</li>
+                <li>Personal identification number</li>
+                <li>ID of insurance company</li>
+                <li>Address</li>
+                <li>Contact phone and email address</li>
+            </ul>
+        </li>
+        <li>
+            <h6>The purpose of personal data processing is:</h6>
+            <p>Data entry into the IHIS system (Institute of Health Information and Statistics of the Czech Republic) = data administrator</p>
+        </li>
+        <li>
+            <h6>The processing time of personal data is:</h6>
+            <p>One year from the approval</p>
+        </li>
+        <li>
+            <h6>Personal data may be provided to the following third parties:</h6>
+            <p>
+                Laguna Solutions, s. r. o. with registered office Sadová 1116, Dobřichovice, ZIP code: 252 29, ID: 079 64 994<br />
+                The Tested Person declares that he / she has been duly instructed by the Administrator on the processing of personal data, that the above-mentioned personal data are accurate and true and are provided to the Administrator voluntarily.
+            </p>
+        </li>
+    </ol>
+
+    <h5>Instruction of tested persons</h5>
+    <p>The controller hereby informs, in accordance with the provisions of Article 13 of Regulation (EU) No 2016/679 of the European Parliament and of the Council of 27 April 2016, the General Regulation on the Protection of Personal Data (hereinafter "the Regulation") that:</p>
+    <ul>
+        <li>Personal data of the tested persons will be processed on the basis of their free consent, under the above conditions</li>
+        <li>The reason for providing personal data of the tested persons is the interest of the tested persons in performing the test for the COVID-19 virus, which is provided to the public free of charge.</li>
+        <li>The controller did not appoint a data protection officer, did not entrust the processing of personal data to any processor or appointed a representative for the performance of duties within the meaning of the Regulation</li>
+        <li>The controller does not intend to transfer the personal data of the test persons to a third country, an international organization or other than the third parties mentioned above</li>
+        <li>The tested person has the right to revoke his consent to the processing of personal data at any time, the right to request access to his personal data, their correction or deletion, or restrictions on processing, and to object to the processing, has the right to transfer this data to another controller. the right to lodge a complaint with the Office for Personal Data Protection if it considers that the Controller is processing a breach of the Regulation in the processing of personal data.</li>
+    </ul>
+    <p><strong>The tester confirms that he / she has not undergone PCR testing in the last 90 days and antigen testing in the last 3 days.</strong></p>
+}

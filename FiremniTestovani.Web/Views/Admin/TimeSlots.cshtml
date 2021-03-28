@@ -1,0 +1,333 @@
+﻿@model FiremniTestovani.Web.Models.General.TimeSlotsViewModel
+@{ ViewData["Title"] = "Administrace slotů pro očkování"; }
+
+@section header{
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/datatables-bs4/css/dataTables.bootstrap4.css">
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"> Administrace slotů pro testování</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Admin">Administrace</a></li>
+                        <li class="breadcrumb-item active">Časové sloty</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Main content -->
+    <div class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 m-auto">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Vyberte testovací datum</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="fr-datetimepicker"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8" id="fr-slots">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 m-auto">
+                    <div id="bookingjs"></div>
+                </div>
+                <!-- /.col-md-6 -->
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<div class="modal fade" id="modal-lg">
+    <partial name="_GenerateSlotsModalPartial" model="new FiremniTestovani.Web.Models.Admin.GenerateSlotsViewModel()" />
+</div>
+<!-- /.modal -->
+
+@section scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- Moment.js -->
+    <script src="~/lib/moment/moment-with-locales.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    @*<script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>*@
+    <script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/lib/jszip/jszip.min.js"></script>
+    <script src="~/lib/pdfmake/pdfmake.min.js"></script>
+    <script src="~/lib/pdfmake/vfs_fonts.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/lib/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <script>
+        moment.locale('cs');
+    </script>
+
+    <script>
+        // xhr array
+        var xhrArray1 = [];
+        // variable for active dates
+        var activeDates = [];
+        var freeDates = [];
+
+        $('#fr-datetimepicker').datetimepicker({
+            minDate: '@DateTime.Today.ToString("yyyy-MM-dd")',
+            format: 'YYYY-MM-DD',
+            locale: 'cs',
+            inline: true,
+            //sideBySide: true
+        });
+
+        // on datepicker update
+        $('#fr-datetimepicker').on('update.datetimepicker', function (event) {
+            // mark active dates
+            markActiveDates();
+        });
+
+        $('#fr-datetimepicker').on('change.datetimepicker', function (date, oldDate) {
+            // mark active dates
+            markActiveDates();
+
+            renderSlotsForDate(date.date);
+        });
+
+        $(document).on('click', '.fr-generate-slots-button', function (event) {
+            $('#modal-lg').modal('show');
+
+            var date = $(this).data('date');
+
+            $('#GenerateSlots_Date').val(date);
+        });
+
+        $(document).on('change', 'input[name="GenerationMethod"]', function (event) {
+            var $selectedItem = $('input[name="GenerationMethod"]:checked');
+
+            var value = $selectedItem.val();
+            var unlocks = $selectedItem.data('unlocks');
+
+            $('.locked-by-method').val('');
+            $('.locked-by-method').prop('disabled', true);
+            $('#' + unlocks).prop('disabled', false);
+        });
+
+        $('.fr-submit-slots').on('click', function (event) {
+            var $form = $('#fr-generate-slots-form');
+            var data = $form.serialize();
+
+            if (!$form.valid()) {
+                return;
+            }
+
+            var target = $(this);
+
+            var originalContent = $(target).html();
+            $(target).html('<i class="fa fa-spinner fa-spin"></i> Odesílám');
+
+            var xhrId = $(target).data('xhr-id');
+            var result;
+
+            if (typeof (xhrId) === 'undefined') {
+                xhrId = xhrArray1.length;
+
+                xhrArray1[xhrId] = new XMLHttpRequest();
+                $(target).data('xhr-id', xhrId);
+            }
+
+            xhrArray1[xhrId].abort();
+
+            xhrArray1[xhrId] = $.ajax({
+                cache: false,
+                type: "POST",
+                url: $form.attr('action'),
+                data: data,
+                success: function (data) {
+                    // reset the form and hide modal
+                    $form.trigger('reset');
+                    $('#modal-lg').modal('hide');
+
+                    // fetch and mark dates with slots again
+                    fetchDates();
+
+                    // trigger datetimepicker chage to load table with slots
+                    $('#fr-datetimepicker').data("datetimepicker").date(new moment(data.date));
+
+                    setTimeout(function () {
+
+                        //$('#fr-datetimepicker').triggerHandler('change.datetimepicker');
+
+                        renderSlotsForDate(data.date);
+                    }, 500);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if (xhr.statusText === 'abort') {
+                        return;
+                    }
+
+                    alert('chyba: ' + xhr);
+                    console.log(xhr.responseText);
+                },
+                complete: function (data) {
+                    $(target).html(originalContent);
+                }
+            });
+        });
+
+        function renderSlotsForDate(date) {
+            // request data
+            var url = '@Url.Action("_TimeSlotsPartial", "Admin", null)';
+            var target = $('#fr-slots');
+
+            var resultDate;
+            if (typeof (date) === 'undefined' || date == null) {
+                resultDate = new moment();
+            }
+            else {
+                resultDate = new moment(date);
+            }
+
+            var data = {
+                date: resultDate.format()
+            };
+
+            // render
+            renderHtmlBlock(target, url, data);
+        }
+
+        // render html block from url with data
+        function renderHtmlBlock(target, url, postData) {
+            $(target).html('<div class="loading-block"></div>');
+            console.log('rendering...');
+
+            var xhrId = $(target).data('xhr-id');
+
+            if (typeof (xhrId) === 'undefined') {
+                xhrId = xhrArray1.length;
+
+                xhrArray1[xhrId] = new XMLHttpRequest();
+                $(target).data('xhr-id', xhrId);
+            }
+
+            xhrArray1[xhrId].abort();
+
+            console.log('loading html block from URL: ' + url);
+            console.log('with data:');
+            console.log(postData);
+
+            xhrArray1[xhrId] = $.ajax({
+                cache: false,
+                type: "POST",
+                url: url,
+                data: postData,
+                success: function (data) {
+                    $(target).html(data);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if (xhr.statusText === 'abort') {
+                        return;
+                    }
+
+                    alert('chyba: ' + xhr);
+                    console.log(xhr.responseText);
+                }
+            });
+        };
+
+        // fetch dates with slots
+        function fetchDates() {
+            var target = $('#fr-datetimepicker');
+
+            var xhrId = $(target).data('xhr-id');
+            var result;
+
+            if (typeof (xhrId) === 'undefined') {
+                xhrId = xhrArray1.length;
+
+                xhrArray1[xhrId] = new XMLHttpRequest();
+                $(target).data('xhr-id', xhrId);
+            }
+
+            xhrArray1[xhrId].abort();
+
+            xhrArray1[xhrId] = $.ajax({
+                cache: false,
+                type: "POST",
+                url: '@Url.Action("TimeSlots")',
+                //data: postData,
+                success: function (data) {
+                    // set result to activeDates variable
+                    activeDates = data.calc_StringDatesWithSlots;
+                    freeDates = data.calc_StringDatesWithFreeSlots;
+
+                    // and mark active dates
+                    markActiveDates();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if (xhr.statusText === 'abort') {
+                        return;
+                    }
+
+                    alert('chyba: ' + xhr);
+                    console.log(xhr.responseText);
+                }
+            });
+        };
+
+        // funtion for marking active dates based on activeDates variable
+        function markActiveDates() {
+            // remove all marks
+            $('td.day').removeClass('marked');
+            $('td.day').removeClass('marked-free');
+
+            // loop through dates and mark them
+            for (var i = 0; i < activeDates.length; i++) {
+                $('td.day[data-date="' + activeDates[i] + '"]').addClass('marked');
+            }
+
+            // loop through free dates and mark them
+            for (var i = 0; i < freeDates.length; i++) {
+                $('td.day[data-date="' + freeDates[i] + '"]')
+                    .removeClass('marked')
+                    .addClass('marked-free');
+            }
+        };
+
+        // when page loaded...
+        $(document).ready(function () {
+            // fetch dates
+            fetchDates();
+
+            // and trigger datetimepicker change to load table with slots
+            $('#fr-datetimepicker').triggerHandler('change.datetimepicker');
+        });
+    </script>
+}
